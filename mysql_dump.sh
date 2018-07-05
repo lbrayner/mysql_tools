@@ -5,8 +5,8 @@
 script_name="$(basename "${0}")"
 
 print_usage() {
-	printf '\n%s\n' "${script_name} [-h] [-d FOLDER] [-c CLASSIFIER] [-p TEMPDIR] \
--- PG_DUMP_ARGS..."
+	printf '\n%s\n' "${script_name} [-h] [-d FOLDER] [-c CLASSIFIER] [-p TEMPDIR]\
+ [-- ARGS...]"
 }
 
 
@@ -23,7 +23,7 @@ dump_pack(){
     dump_file="${dirname_dump_file}/${name}"
     basename_dump_file="${name}"
     target_zip_file="${destination}/${name}.zip"
-    pg_dump "${@}" -f "${dump_file}"
+    mysqldump "${@}" > "${dump_file}"
     cd "${dirname_dump_file}"
     zip "${target_zip_file}" "${basename_dump_file}"
     cd -
@@ -39,6 +39,7 @@ fi
 classifier=""
 destination="."
 tmpdir="/tmp"
+prefix="mysql_dump"
 
 while getopts ":hc:d:p:" opt
 do
@@ -70,6 +71,6 @@ then
     exit 1
 fi
 
-name="pgsql_dump${classifier}$(generate_timestamp).sql"
+name="${prefix}${classifier}$(generate_timestamp).sql"
 
 dump_pack "${name}" "${@}"
