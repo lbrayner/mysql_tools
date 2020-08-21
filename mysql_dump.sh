@@ -23,7 +23,7 @@ dump_pack(){
     dump_file="${dirname_dump_file}/${name}"
     basename_dump_file="${name}"
     target_zip_file="${destination}/${name}.zip"
-    mysqldump "${@}" > "${dump_file}"
+    mysqldump --no-tablespaces "${@}" > "${dump_file}"
     cd "${dirname_dump_file}"
     zip "${target_zip_file}" "${basename_dump_file}"
     cd -
