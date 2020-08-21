@@ -14,25 +14,9 @@ generate_timestamp(){
     date +'%Y%m%d_%H%M_%N'
 }
 
-dump_pack(){
-
-    name="${1}"
-    shift 1
-
-    dirname_dump_file="$(mktemp -d -p "${tmpdir}")"
-    dump_file="${dirname_dump_file}/${name}"
-    basename_dump_file="${name}"
-    target_zip_file="${destination}/${name}.zip"
-    mysqldump --no-tablespaces "${@}" > "${dump_file}"
-    cd "${dirname_dump_file}"
-    zip "${target_zip_file}" "${basename_dump_file}"
-    cd -
-    rm -rf "${dirname_dump_file}"
-}
-
 if [ ! ${#} -gt 0 ]
 then
-	print_usage
+	print_usage 1>&2
 	exit 1
 fi
 
@@ -67,10 +51,16 @@ destination="$(readlink -f "${destination}")"
 
 if [ ! -d "${destination}" ]
 then
-    printf '%s%s%s not a folder.\n' \' "${destination}" \'
+    echo "'${destination}' is not a folder." 1>&2
     exit 1
 fi
 
 name="${prefix}${classifier}$(generate_timestamp).sql"
 
-dump_pack "${name}" "${@}"
+dump_file_dir="$(mktemp -d -p "${tmpdir}")"
+cd "${dump_file_dir}"
+zip_file="${destination}/${name}.zip"
+mysqldump --no-tablespaces "${@}" > "${name}"
+zip "${zip_file}" "${name}"
+cd -
+rm -rf "${dump_file_dir}"
