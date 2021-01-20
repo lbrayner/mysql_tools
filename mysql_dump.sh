@@ -1,5 +1,6 @@
 #!/bin/sh
 
+set -e
 # set -x
 
 script_name="$(basename "${0}")"
